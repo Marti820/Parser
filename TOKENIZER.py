@@ -54,9 +54,9 @@ def tokenize(code):
         elif kind == 'MISMATCH':
             raise RuntimeError(f'{value!r} unexpected on line {line_num}')
         Lista_Tokens.append(Token(kind, value, line_num, column))
-        yield Token(kind, value, line_num, column)
-        
-#---------Prueba-----------------------------------------------
+        #yield Token(kind, value, line_num, column)
+    return Lista_Tokens   
+#---------Pruebas-----------------------------------------------
 
 code_2 = """defVar nom 0
 defVar x 0
@@ -84,10 +84,14 @@ jump (3 ,3) ;
 putCB (2 ,1)
 }
 """
+code_3 = '''
+dEfvaR n 0
+'''
+'''
 a = tokenize(code_2)
 for token in a:
     print(token)
-
+'''
 '''
 class Parser(NamedTuple):
        
@@ -99,4 +103,47 @@ def isJump(tokens):
         if 
         
 '''
-x= 212
+code_4 = """
+defVar nom 0
+defVar x 0
+defVar y 0
+defVar one 0
+defVar n 0
+defVar 0 nosms
+"""
+
+#-----------------PARSER----------------
+
+def Parse_general(codigo):
+    Tokens = tokenize(codigo)
+    currentToken = 0
+    Variables = {}
+    state = True
+    
+    while state == True and currentToken < len(Tokens):
+        if Token_type(Tokens[currentToken]) == 'defVar':
+           state, var, val = parse_DefVar(Tokens, currentToken, Variables)
+           if state == True:
+                Variables[var] = val
+           else:
+               break
+        currentToken += 1 
+    
+    if state == True and currentToken == len(Tokens):
+        print("CODIGO CORRECTO")
+    else:
+        print("CODIGO INCORRECTO")
+    
+def Token_type(token):
+    return token[0]
+
+def Token_val(token):
+    return token[1]
+
+def parse_DefVar(Tokens, currentToken, Variables):
+    if Token_type(Tokens[currentToken + 1]) == 'ID' and Token_type(Tokens[currentToken + 2]) == 'NUMBER' and Token_val(Tokens[currentToken + 1]) not in Variables:
+        return True, Token_val(Tokens[currentToken + 1]), Token_val(Tokens[currentToken + 2])
+    else:
+        return False, 0, 0
+    
+Parse_general(code_4)
