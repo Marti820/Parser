@@ -112,14 +112,40 @@ defVar n 0
 defVar 0 nosms
 """
 
+code_5 = """
+defVar x 0
+defVar y 0
+{
+    jump(x,y);
+    walk(x,north);
+    walk(3);
+    nop();
+    x = y;
+}
+"""
+
 #-----------------PARSER----------------
+command_list = ['jump',
+                'walk','leap','turn',
+                'turnto','drop','get',
+                'grab','letGo','nop',]
+
+Direcciones = ['front','right',
+                'left','back','north',
+                'south','west','east',]
+
+direcciones2 = ['front','right',
+                'left','back',]
+
+direcciones3 = ['north','south',
+                'west','east',]
 
 def Parse_general(codigo):
     Tokens = tokenize(codigo)
     currentToken = 0
     Variables = {}
     state = True
-    
+
     while state == True and currentToken < len(Tokens):
         if Token_type(Tokens[currentToken]) == 'defVar':
            state, var, val = parse_DefVar(Tokens, currentToken, Variables)
@@ -127,13 +153,19 @@ def Parse_general(codigo):
                 Variables[var] = val
            else:
                break
+        if Token_type(Tokens[currentToken]) in command_list:
+            state = Parse_simpleComand(Tokens, currentToken, Variables)
+            
+        if Token_type(Tokens[currentToken]) == 'ASSIGN':
+            state = Parse_ASSIGN(Tokens, currentToken, Variables)
+        
         currentToken += 1 
     
     if state == True and currentToken == len(Tokens):
         print("CODIGO CORRECTO")
     else:
         print("CODIGO INCORRECTO")
-    
+
 def Token_type(token):
     return token[0]
 
@@ -145,5 +177,101 @@ def parse_DefVar(Tokens, currentToken, Variables):
         return True, Token_val(Tokens[currentToken + 1]), Token_val(Tokens[currentToken + 2])
     else:
         return False, 0, 0
+
+def Parse_simpleComand(Tokens, currentToken, Variables):
+    if Token_type(Tokens[currentToken]) == 'jump' and Token_type(Tokens[currentToken + 1]) == 'LPAREN' and (Token_type(Tokens[currentToken + 2]) == 'NUMBER' or Token_type(Tokens[currentToken + 2]) == 'ID') and Token_type(Tokens[currentToken + 3]) == 'COMA' and (Token_type(Tokens[currentToken + 4]) == 'NUMBER' or Token_type(Tokens[currentToken + 4]) == 'ID') and Token_type(Tokens[currentToken + 5]) == 'RPAREN' and (Token_type(Tokens[currentToken + 6]) == 'END' or Token_type(Tokens[currentToken + 6]) == 'RBRACE' ):
+        if (Token_type(Tokens[currentToken + 2]) == 'ID' and Token_type(Tokens[currentToken + 4]) == 'ID'):
+            if Token_val(Tokens[currentToken + 2]) in Variables.keys() and Token_val(Tokens[currentToken + 4]) in Variables.keys():
+                return True
+        if (Token_type(Tokens[currentToken + 2]) == 'ID' and Token_type(Tokens[currentToken + 4]) == 'NUMBER'):
+            if Token_val(Tokens[currentToken + 3]) in Variables.keys():
+                return True
+        if (Token_type(Tokens[currentToken + 2]) == 'NUMBER' and Token_type(Tokens[currentToken + 4]) == 'ID'):
+            if  Token_val(Tokens[currentToken + 4]) in Variables.keys():
+                return True
+        if (Token_type(Tokens[currentToken + 2]) == 'NUMBER' and Token_type(Tokens[currentToken + 4]) == 'NUMBER'):
+            return True
+    if Token_type(Tokens[currentToken]) == 'walk' and Token_type(Tokens[currentToken + 1]) == 'LPAREN' and (Token_type(Tokens[currentToken + 2]) == 'NUMBER' or Token_type(Tokens[currentToken + 2]) == 'ID') and Token_type(Tokens[currentToken + 3]) == 'COMA' and Token_type(Tokens[currentToken + 4]) in Direcciones and Token_type(Tokens[currentToken + 5]) == 'RPAREN' and (Token_type(Tokens[currentToken + 6]) == 'END' or Token_type(Tokens[currentToken + 6]) == 'RBRACE' ):
+        if Token_type(Tokens[currentToken + 2]) == 'ID':
+            if Token_val(Tokens[currentToken + 2]) in Variables.keys():
+                return True
+        if Token_type(Tokens[currentToken + 2]) == 'NUMBER':
+            return True
+    if Token_type(Tokens[currentToken]) == 'walk' and Token_type(Tokens[currentToken + 1]) == 'LPAREN' and (Token_type(Tokens[currentToken + 2]) == 'NUMBER' or Token_type(Tokens[currentToken + 2]) == 'ID') and Token_type(Tokens[currentToken + 3]) == 'RPAREN' and (Token_type(Tokens[currentToken + 4]) == 'END' or Token_type(Tokens[currentToken + 4]) == 'RBRACE' ):
+        if Token_type(Tokens[currentToken + 2]) == 'ID':
+            if Token_val(Tokens[currentToken + 2]) in Variables.keys():
+                return True
+        if Token_type(Tokens[currentToken + 2]) == 'NUMBER':
+            return True
+    if Token_type(Tokens[currentToken]) == 'leap' and Token_type(Tokens[currentToken + 1]) == 'LPAREN' and (Token_type(Tokens[currentToken + 2]) == 'NUMBER' or Token_type(Tokens[currentToken + 2]) == 'ID') and Token_type(Tokens[currentToken + 3]) == 'COMA' and Token_type(Tokens[currentToken + 4]) in Direcciones and Token_type(Tokens[currentToken + 5]) == 'RPAREN' and (Token_type(Tokens[currentToken + 6]) == 'END' or Token_type(Tokens[currentToken + 6]) == 'RBRACE' ):
+        if Token_type(Tokens[currentToken + 2]) == 'ID':
+            if Token_val(Tokens[currentToken + 2]) in Variables.keys():
+                return True
+        if Token_type(Tokens[currentToken + 2]) == 'NUMBER':
+            return True
+        
+    if Token_type(Tokens[currentToken]) == 'leap' and Token_type(Tokens[currentToken + 1]) == 'LPAREN' and (Token_type(Tokens[currentToken + 2]) == 'NUMBER' or Token_type(Tokens[currentToken + 2]) == 'ID') and Token_type(Tokens[currentToken + 3]) == 'RPAREN' and (Token_type(Tokens[currentToken + 4]) == 'END' or Token_type(Tokens[currentToken + 4]) == 'RBRACE' ):
+        if Token_type(Tokens[currentToken + 2]) == 'ID':
+            if Token_val(Tokens[currentToken + 2]) in Variables.keys():
+                return True
+        if Token_type(Tokens[currentToken + 2]) == 'NUMBER':
+            return True
     
-Parse_general(code_4)
+    if Token_type(Tokens[currentToken]) == 'turn' and Token_type(Tokens[currentToken + 1]) == 'LPAREN' and Token_type(Tokens[currentToken + 2]) in direcciones2  and Token_type(Tokens[currentToken + 3]) == 'RPAREN' and (Token_type(Tokens[currentToken + 4]) == 'END' or Token_type(Tokens[currentToken + 4]) == 'RBRACE' ):
+        return True
+    
+    if Token_type(Tokens[currentToken]) == 'drop' and Token_type(Tokens[currentToken + 1]) == 'LPAREN' and (Token_type(Tokens[currentToken + 2]) == 'NUMBER' or Token_type(Tokens[currentToken + 2]) == 'ID') and Token_type(Tokens[currentToken + 3]) == 'COMA' and Token_type(Tokens[currentToken + 4]) in Direcciones and Token_type(Tokens[currentToken + 5]) == 'RPAREN' and (Token_type(Tokens[currentToken + 6]) == 'END' or Token_type(Tokens[currentToken + 6]) == 'RBRACE' ):
+        if Token_type(Tokens[currentToken + 2]) == 'ID':
+            if Token_val(Tokens[currentToken + 2]) in Variables.keys():
+                return True
+        if Token_type(Tokens[currentToken + 2]) == 'NUMBER':
+            return True
+    
+    if Token_type(Tokens[currentToken]) == 'get' and Token_type(Tokens[currentToken + 1]) == 'LPAREN' and (Token_type(Tokens[currentToken + 2]) == 'NUMBER' or Token_type(Tokens[currentToken + 2]) == 'ID') and Token_type(Tokens[currentToken + 3]) == 'COMA' and Token_type(Tokens[currentToken + 4]) in Direcciones and Token_type(Tokens[currentToken + 5]) == 'RPAREN' and (Token_type(Tokens[currentToken + 6]) == 'END' or Token_type(Tokens[currentToken + 6]) == 'RBRACE' ):
+        if Token_type(Tokens[currentToken + 2]) == 'ID':
+            if Token_val(Tokens[currentToken + 2]) in Variables.keys():
+                return True
+        if Token_type(Tokens[currentToken + 2]) == 'NUMBER':
+            return True
+
+    if Token_type(Tokens[currentToken]) == 'grab' and Token_type(Tokens[currentToken + 1]) == 'LPAREN' and (Token_type(Tokens[currentToken + 2]) == 'NUMBER' or Token_type(Tokens[currentToken + 2]) == 'ID') and Token_type(Tokens[currentToken + 3]) == 'COMA' and Token_type(Tokens[currentToken + 4]) in Direcciones and Token_type(Tokens[currentToken + 5]) == 'RPAREN' and (Token_type(Tokens[currentToken + 6]) == 'END' or Token_type(Tokens[currentToken + 6]) == 'RBRACE' ):
+        if Token_type(Tokens[currentToken + 2]) == 'ID':
+            if Token_val(Tokens[currentToken + 2]) in Variables.keys():
+                return True
+        if Token_type(Tokens[currentToken + 2]) == 'NUMBER':
+            return True
+    
+    if Token_type(Tokens[currentToken]) == 'letGo' and Token_type(Tokens[currentToken + 1]) == 'LPAREN' and (Token_type(Tokens[currentToken + 2]) == 'NUMBER' or Token_type(Tokens[currentToken + 2]) == 'ID') and Token_type(Tokens[currentToken + 3]) == 'COMA' and Token_type(Tokens[currentToken + 4]) in Direcciones and Token_type(Tokens[currentToken + 5]) == 'RPAREN' and (Token_type(Tokens[currentToken + 6]) == 'END' or Token_type(Tokens[currentToken + 6]) == 'RBRACE' ):
+        if Token_type(Tokens[currentToken + 2]) == 'ID':
+            if Token_val(Tokens[currentToken + 2]) in Variables.keys():
+                return True
+        if Token_type(Tokens[currentToken + 2]) == 'NUMBER':
+            return True
+    
+    if Token_type(Tokens[currentToken]) == 'nop' and Token_type(Tokens[currentToken + 1]) == 'LPAREN' and Token_type(Tokens[currentToken + 2]) == 'RPAREN' and (Token_type(Tokens[currentToken + 3]) == 'END' or Token_type(Tokens[currentToken + 3]) == 'RBRACE' ):
+        return True
+        
+    else:
+            False
+
+def Parse_ASSIGN(Tokens, currentToken, Variables):
+    
+    if Token_type(Tokens[currentToken-1]) == 'ID' and Token_val(Tokens[currentToken-1]) in Variables.keys() and ((Token_type(Tokens[currentToken+1]) == 'ID' and Token_val(Tokens[currentToken-1]) in Variables.keys()) or Token_type(Tokens[currentToken+1]) == 'NUMBER') and (Token_type(Tokens[currentToken + 2]) == 'END' or Token_type(Tokens[currentToken + 2]) == 'RBRACE' ):
+        return True  
+    else:
+        return False
+    
+
+
+'''
+command_list = ['jump',
+                'walk','leap','turn',
+                'turnto','drop','get',
+                'grab','letGo','nop','ASSIGN']   
+'''
+Parse_general(code_5)
+'''
+a = tokenize(code_5)
+for token in a:
+    print(token)
+'''
