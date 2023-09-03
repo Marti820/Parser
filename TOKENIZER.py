@@ -114,13 +114,16 @@ defVar 0 nosms
 
 code_5 = """
 defVar x 0
-defVar y 0
+defVar y 1
+defVar w 4
 {
-    jump(x,y);
+    
+    jump(x,w);
     walk(x,north);
     walk(3);
     nop();
     x = y;
+    w =7
 }
 """
 
@@ -141,6 +144,7 @@ direcciones3 = ['north','south',
                 'west','east',]
 
 def Parse_general(codigo):
+    codigomin = codigo.lower()
     Tokens = tokenize(codigo)
     currentToken = 0
     Variables = {}
@@ -155,10 +159,10 @@ def Parse_general(codigo):
                break
         if Token_type(Tokens[currentToken]) in command_list:
             state = Parse_simpleComand(Tokens, currentToken, Variables)
-            
+ 
         if Token_type(Tokens[currentToken]) == 'ASSIGN':
             state = Parse_ASSIGN(Tokens, currentToken, Variables)
-        
+
         currentToken += 1 
     
     if state == True and currentToken == len(Tokens):
