@@ -109,8 +109,6 @@ defVar x 0
 defVar y 0
 defVar one 0
 defVar n 0
-defVar 0 nosms
-
 """
 
 code_5 = """
@@ -148,25 +146,23 @@ def Parse_general(codigo):
     currentToken = 0
     Variables = {}
     state = True
-
-    while state == True and currentToken < len(Tokens):
+    NewComands = {}
+    
+    if PreScan(Tokens) == False:
+        state = False
+    
+    while state == True and currentToken < len(Tokens)-1:
         if Token_type(Tokens[currentToken]) == 'defVar':
            state, var, val = parse_DefVar(Tokens, currentToken, Variables)
            if state == True:
                 Variables[var] = val
                 
-        if Token_type(Tokens[currentToken]) in command_list:
-            state = Parse_simpleComand(Tokens, currentToken, Variables)
- 
-        if Token_type(Tokens[currentToken]) == 'ASSIGN':
-            state = Parse_ASSIGN(Tokens, currentToken, Variables)
-
-        if Token_type(Tokens[currentToken]) == 'defProc' or (Token_type(Tokens[currentToken]) == 'LBRACE' and Token_type(Tokens[currentToken-1]) != 'RPAREN' ):
+        if Token_type(Tokens[currentToken]) == 'defProc': #or (Token_type(Tokens[currentToken]) == 'LBRACE' and Token_type(Tokens[currentToken-1]) != 'RPAREN' ):
             state = ParseComplexComad(Tokens, currentToken, Variables)
         
         currentToken += 1 
     
-    if state == True and currentToken == len(Tokens):
+    if state == True:
         print("CODIGO CORRECTO")
     else:
         print("CODIGO INCORRECTO")
@@ -269,27 +265,48 @@ def Parse_ASSIGN(Tokens, currentToken, Variables):
 def ParseComplexComad(Tokens, currentToken, Variables):
     
     if Token_type(Tokens[currentToken]) == 'defProc':
-        FinDelBloque = HallarFinDelBloqueDefProc(Tokens, currentToken)    
-        parametros = {}
-    
-    return True
-
-def HallarFinDelBloqueDefProc(Tokens, currentToken):
-    centinela = 0 
-    FinBloque = 0
-    currentToken_inicio = currentToken
-    while Token_type(Tokens[currentToken_inicio]) != 'RPAREN':
-        if currentToken_inicio == len(Tokens):
+        parametros = []
+        nombreProc = ""
+        currentToken += 1
+        state = True
+        if Token_type(Tokens[currentToken]) == 'ID' and Token_val(Tokens[currentToken]) not in Variables:
+            nombreProc = Token_val(Tokens[currentToken ])
+            currentToken += 1 
+        else: 
             return False
-    
-        currentToken_inicio +=1 
         
-    if Token_type(Tokens[currentToken_inicio+1]) == 'LBRACE':
-        flag = True
-        currentToken_inicio += 1
-    else:
-        return False
-    
+        if Token_type(Tokens[currentToken]) == 'LPAREN':
+            currentToken += 1
+            while Token_type(Tokens[currentToken]) != 'RPAREN':
+                if Token_type(Tokens[currentToken]) == 'ID' and (Token_type(Tokens[currentToken+1])== 'COMA' or Token_type(Tokens[currentToken+1])== 'RPAREN'):
+                    parametros.append(Token_val(Tokens[currentToken]))
+                elif currentToken == len(Tokens)-1:
+                    return False
+                elif Token_type(Tokens[currentToken]) != 'ID' and Token_type(Tokens[currentToken]) != 'COMA':
+                    return False
+                currentToken +=1 
+                
+        if Token_type(Tokens[currentToken+1]) == 'LBRACE':
+            currentToken += 1
+        else:
+            return False
+        
+        FinDelBloque = HallarFinDelBloqueDefProc(Tokens, currentToken)    
+        for token in range(currentToken, FinDelBloque+1):
+            if Token_type(Tokens[token]) in command_list:
+                state = Parse_simpleComand(Tokens, currentToken, Variables)
+ 
+            if Token_type(Tokens[token]) == 'ASSIGN':
+                state = Parse_ASSIGN(Tokens, currentToken, Variables)
+            #print(token)
+            currentToken += 1
+        return state
+        
+def HallarFinDelBloqueDefProc(Tokens, currentToken ):
+    centinela = 0 
+    currentToken_inicio = currentToken
+    flag = True        
+            
     while flag == True:
         if  Token_type(Tokens[currentToken_inicio]) == 'LBRACE':
             centinela += 1 
@@ -300,11 +317,28 @@ def HallarFinDelBloqueDefProc(Tokens, currentToken):
             return currentToken_inicio
         if centinela < 0:
             return False
-        if currentToken_inicio == len(Tokens):
+        if currentToken_inicio == len(Tokens)-1 and centinela != 0:
             return False
         #print('corriendo')
         currentToken_inicio +=1
         
+def PreScan(Tokens):
+    centinela = 0
+    currentToken_inicio = 0
+    flag = True
+    while flag == True:
+        if  Token_type(Tokens[currentToken_inicio]) == 'LBRACE':
+            centinela += 1 
+        if Token_type(Tokens[currentToken_inicio]) == 'RBRACE':
+            centinela -= 1
+        if centinela < 0:
+            return False
+        if currentToken_inicio == len(Tokens)-1 and centinela != 0:
+            return False
+        if currentToken_inicio == len(Tokens)-1 and centinela == 0:
+            return True
+        #print('corriendo')
+        currentToken_inicio +=1
         
 code_6='''
 defProc putCB (c , b){
@@ -312,13 +346,16 @@ defProc putCB (c , b){
         walk(3)
     }
 }
+'''
+'''
 defVar x 0
 {
     x =3
 }
+
 '''
 
-print(HallarFinDelBloqueDefProc(tokenize(code_6),0))
+#print(PreScan(tokenize(code_6)))
     
     
 '''
@@ -327,7 +364,7 @@ command_list = ['jump',
                 'turnto','drop','get',
                 'grab','letGo','nop','ASSIGN']   
 '''
-#Parse_general(code_5)
+Parse_general(code_6)
 '''
 a = tokenize(code_5)
 for token in a:
