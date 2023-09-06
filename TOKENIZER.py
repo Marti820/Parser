@@ -504,20 +504,40 @@ def ParseCond1(Tokens, currentToken, Variables, parametros):
     if Token_type(Tokens[currentToken+1]) == 'facing':
         if Token_type(Tokens[currentToken+2]) == 'LPAREN':
              if Token_val(Tokens[currentToken+3]) in direcciones3:
-                     return True
+                    state =  True
     elif Token_type(Tokens[currentToken+1]) == 'can':
         if Token_type(Tokens[currentToken+2]) == 'LPAREN':
             if Token_val(Tokens[currentToken+3]) in command_list:
                  if ParseCondNOT(Tokens,currentToken+3,Variables,parametros)==True:
-                    return True
+                    state = True
                 
     elif Token_type(Tokens[currentToken+1]) == 'not':
         if Token_type(Tokens[currentToken+2]) == 'COLON':
             if ParseCondNOT(Tokens,currentToken+3,Variables, parametros)==True:
-                    return True
+                    state = True
         
     else:
-        False
+        return False
+     
+    if state == True:
+        flag = False
+        while flag == False:
+            if currentToken == len(Tokens)-1:
+                break
+            if currentToken != len(Tokens)-1:
+                if Token_type(Tokens[currentToken]) == 'LBRACE':
+                    final = HallarFinDelBloqueDefProc(Tokens, currentToken)
+                    if Token_type(Tokens[final + 1]) == 'END' and Token_type(Tokens[final + 2]) == 'RBRACE':
+                        flag = True        
+                    else:
+                        break
+
+            currentToken += 1
+        if flag == False:
+            return False
+    else:
+        return False   
+    
     
 def ParseCondNOT(Tokens, currentToken, Variables, parametros):
     if Token_type(Tokens[currentToken]) == 'facing':
@@ -550,7 +570,7 @@ def parseIF(Tokens, currentToken, Variables, parametros):
                     state = True
         
     else:
-        state = False
+        return = False
     
     if state == True:
         flag = False
