@@ -624,5 +624,5 @@ def mainFunction(Archivo):
         file_contents = file.read()
     file.close()
     print(Parse_general(file_contents))
-
-mainFunction('prueba.txt')
+    return None
+mainFunction('prueba2.txt')
