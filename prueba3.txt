@@ -1,0 +1,4 @@
+{
+if can ( walk (1 , west ) ) { walk (1 , west )} else { nop () }
+walk (1 , west )
+}

@@ -537,29 +537,42 @@ def parseIF(Tokens, currentToken, Variables, parametros):
     if Token_type(Tokens[currentToken+1]) == 'facing':
         if Token_type(Tokens[currentToken+2]) == 'LPAREN':
              if Token_val(Tokens[currentToken+3]) in direcciones3:
-                     return True
+                     state = True
     elif Token_type(Tokens[currentToken+1]) == 'can':
         if Token_type(Tokens[currentToken+2]) == 'LPAREN':
             if Token_val(Tokens[currentToken+3]) in command_list:
                  if ParseCondNOT(Tokens,currentToken+3,Variables, parametros)==True:
-                    return True
+                    state = True
                 
     elif Token_type(Tokens[currentToken+1]) == 'not':
         if Token_type(Tokens[currentToken+2]) == 'COLON':
             if ParseCondNOT(Tokens,currentToken+3,Variables, parametros)==True:
-                    return True
+                    state = True
         
     else:
-        return False
+        state = False
     
-    flag = False
-    while flag == False:
-        if currentToken != len(Tokens)-1:
-            if Token_type(Tokens[currentToken]) != 'RBRACE' and Token_type(Tokens[currentToken+1]) != 'ELSE':
-                flag = True
-        currentToken += 1
-        
-    if flag == False:
+    if state == True:
+        flag = False
+        while flag == False:
+            if currentToken == len(Tokens)-1:
+                break
+            if currentToken != len(Tokens)-1:
+                if Token_type(Tokens[currentToken]) == 'LBRACE':
+                    final = HallarFinDelBloqueDefProc(Tokens, currentToken)
+                    if Token_type(Tokens[final + 1]) == 'else' and Token_type(Tokens[final + 2]) == 'LBRACE':
+                            final2  = HallarFinDelBloqueDefProc(Tokens, final +2)
+                            if Token_type(Tokens[final2 + 1]) == 'END' or Token_type(Tokens[final2 + 1]) == 'RBRACE':
+                                flag = True
+                            else:
+                                break
+                    else:
+                        break
+
+            currentToken += 1
+        if flag == False:
+            return False
+    else:
         return False
     
 def parseRepeatTimes(Tokens, currentToken, Variables, parametros):
@@ -625,4 +638,4 @@ def mainFunction(Archivo):
     file.close()
     print(Parse_general(file_contents))
     return None
-mainFunction('prueba2.txt')
+mainFunction('prueba.txt')
