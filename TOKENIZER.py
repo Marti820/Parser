@@ -375,6 +375,22 @@ def PreScan(Tokens):
     centinela = 0
     currentToken_inicio = 0
     flag = True
+    indeseado = ['jump',
+                'walk','front','right',
+                'left','back','north',
+                'south','west','east',
+                'leap','turn','turnto',
+                'drop','get','grab',
+                'letgo','nop','if', 
+                'else', 'while','repeat',
+                'repeat','times','facing',
+                'can','not', 'NUMBER', 
+                'ASSIGN', 'END', 'OP',
+                'RPAREN', 'LPAREN', 'COMA',
+                'COLON', 'MISMATCH']
+    posible = ['defvar', 'defproc','COMA','LPAREN']
+    
+    defdef = ['defvar', 'defproc']
     while flag == True:
         if  Token_type(Tokens[currentToken_inicio]) == 'LBRACE':
             centinela += 1 
@@ -386,6 +402,18 @@ def PreScan(Tokens):
             return False
         if currentToken_inicio == len(Tokens)-1 and centinela == 0:
             return True
+        if currentToken_inicio != len(Tokens)-1 and centinela == 0:
+            if Token_type(Tokens[currentToken_inicio]) == 'ID' and Token_type(Tokens[currentToken_inicio-1]) not in posible:
+                return False 
+            if Token_type(Tokens[currentToken_inicio]) in indeseado:
+                if Token_type(Tokens[currentToken_inicio]) == 'LPAREN' and (Token_type(Tokens[currentToken_inicio-1]) == 'ID' or Token_type(Tokens[currentToken_inicio-1]) == 'RPAREN')  and Token_type(Tokens[currentToken_inicio-2]) in defdef:
+                    pass
+                elif Token_type(Tokens[currentToken_inicio]) == 'RPAREN' and (Token_type(Tokens[currentToken_inicio-1]) == 'ID' or Token_type(Tokens[currentToken_inicio-1]) == 'LPAREN') and Token_type(Tokens[currentToken_inicio+1]) == 'LBRACE':
+                    pass
+                elif Token_type(Tokens[currentToken_inicio]) == 'COMA'  and Token_type(Tokens[currentToken_inicio+1]) == 'ID' and Token_type(Tokens[currentToken_inicio-1]) == 'ID':
+                    pass
+                else:
+                    return False
         #print('corriendo')
         currentToken_inicio +=1
         
@@ -527,7 +555,7 @@ def ParseCond1(Tokens, currentToken, Variables, parametros):
             if currentToken != len(Tokens)-1:
                 if Token_type(Tokens[currentToken]) == 'LBRACE':
                     final = HallarFinDelBloqueDefProc(Tokens, currentToken)
-                    if Token_type(Tokens[final + 1]) == 'END' and Token_type(Tokens[final + 2]) == 'RBRACE':
+                    if Token_type(Tokens[final + 1]) == 'END' or Token_type(Tokens[final + 2]) == 'RBRACE':
                         flag = True        
                     else:
                         break
@@ -570,7 +598,7 @@ def parseIF(Tokens, currentToken, Variables, parametros):
                     state = True
         
     else:
-        return = False
+        state = False
     
     if state == True:
         flag = False
