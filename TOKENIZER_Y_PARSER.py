@@ -1,6 +1,13 @@
 from typing import NamedTuple
 import re 
+'''
+PROYECTO REALIZADO
 
+POR JUAN MARTIN VASQUEZ 202113314
+Y MARTIN ANDRES DEL GORDO 202024239
+
+
+'''
 
 class Token(NamedTuple):
     type: str
@@ -9,6 +16,7 @@ class Token(NamedTuple):
     column: int
     
 def tokenize(code):
+    
     keywords = {'defvar','defproc','jump',
                 'walk','front','right',
                 'left','back','north',
@@ -76,6 +84,7 @@ direcciones3 = ['north','south',
                 'west','east',]
 
 def Parse_general(codigo):
+
     codigo = codigo.lower()
     Tokens = tokenize(codigo)
     currentToken = 0
