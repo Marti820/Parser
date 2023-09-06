@@ -58,73 +58,6 @@ def tokenize(code):
         Lista_Tokens.append(Token(kind, value, line_num, column))
         #yield Token(kind, value, line_num, column)
     return Lista_Tokens   
-#---------Pruebas-----------------------------------------------
-
-code_2 = """defVar nom 0
-defVar x 0
-defVar y 0
-defVar one 0
-defVar n 0
-
-defProc putCB (c , b )
-{
-drop( c ) ; 
-letGo ( b ) ;
-walk( n )
-}
-
-defProc goNorth ()
-{
-while can(walk(1 , north )) { walk(1 , north ) }
-}
-defProc goWest ()
-{
-if can(walk(1 , west ) ) { walk(1 , west ) } else {nop()}
-}
-{
-jump (3 ,3) ;
-putCB (2 ,1)
-}
-"""
-code_3 = '''
-dEfvaR n 0
-'''
-'''
-a = tokenize(code_2)
-for token in a:
-    print(token)
-'''
-'''
-class Parser(NamedTuple):
-       
-    type: str
-    
-def isJump(tokens):
-    
-    for i in tokens:
-        if 
-        
-'''
-code_4 = """
-defVar nom 0
-defVar x 0
-defVar y 0
-defVar one 0
-defVar n 0
-"""
-
-code_5 = """
-defVar x 0
-defVar y 1
-defVar w 4
-{
-    jump(x,w);
-    walk(x,north);
-    walk(3);
-    nop();
-
-}
-"""
 
 #-----------------PARSER----------------
 command_list = ['jump',
@@ -381,7 +314,7 @@ def ParseComplexComad(Tokens, currentToken, Variables, newConmands, parametros_2
                 if state == False:
                     break
             if Token_type(Tokens[token]) == 'if':
-                state = parseIF(Tokens, currentToken, Variables)
+                state = parseIF(Tokens, currentToken, Variables, parametros)
                 if state == False:
                     break
             if  Token_type(Tokens[token]) == 'repeat':
@@ -398,19 +331,24 @@ def ParseNewCommand(Tokens, currentToken, Variables, parametros ,NewComands, nom
     
     NumPar = (NewComands[nombreComm] * 2)+1
     currentToken += 1
-    for token in range(currentToken, currentToken + NumPar - 1):
-        if Token_type(Tokens[token]) == 'ID' and (Token_val(Tokens[token]) in Variables.keys() or Token_val(Tokens[token]) in parametros) and (token-currentToken)%2 != 0:
-            state = True
-        elif Token_type(Tokens[token]) == 'COMA' and (token-currentToken)%2 == 0:
-            state = True
-        elif token == currentToken and Token_type(Tokens[token]) == 'LPAREN':
-            state = True
-        elif token == currentToken + NumPar - 1  and Token_type(Tokens[token]) == 'RPAREN' and ((Token_type(Tokens[token + 1]) == 'END' or Token_type(Tokens[token + 1]) == 'RBRACE' )):
+    if NumPar != 1: 
+        for token in range(currentToken, currentToken + NumPar - 1):
+            if (Token_type(Tokens[token]) == 'ID' and (Token_val(Tokens[token]) in Variables.keys() or Token_val(Tokens[token]) in parametros) or Token_type(Tokens[token]) == 'NUMBER') and (token-currentToken)%2 != 0:
+                state = True
+            elif Token_type(Tokens[token]) == 'COMA' and (token-currentToken)%2 == 0:
+                state = True
+            elif token == currentToken and Token_type(Tokens[token]) == 'LPAREN':
+                state = True
+            elif token == currentToken + NumPar - 1  and Token_type(Tokens[token]) == 'RPAREN' and ((Token_type(Tokens[token + 1]) == 'END' or Token_type(Tokens[token + 1]) == 'RBRACE' )):
+                state = True
+            else:
+                state = False
+                break 
+    else:
+        if Token_type(Tokens[currentToken]) == 'LPAREN' and Token_type(Tokens[currentToken+1]) == 'RPAREN' and ((Token_type(Tokens[currentToken + 2]) == 'END' or Token_type(Tokens[currentToken + 2]) == 'RBRACE' )):
             state = True
         else:
             state = False
-            break 
-    
     return state
     
 def HallarFinDelBloqueDefProc(Tokens, currentToken ):
@@ -595,7 +533,6 @@ def ParseCondNOT(Tokens, currentToken, Variables, parametros):
     else:
        return True
 
-
 def parseIF(Tokens, currentToken, Variables, parametros):
     if Token_type(Tokens[currentToken+1]) == 'facing':
         if Token_type(Tokens[currentToken+2]) == 'LPAREN':
@@ -680,124 +617,12 @@ def hallarParametros(Tokens, currentToken):
                     return False, 0
                 currentToken +=1 
     return parametros
-    
-    
-    
 
+#----------------------------Main funcion-----------------------
+def mainFunction(Archivo):
+    with open(Archivo) as file:
+        file_contents = file.read()
+    file.close()
+    print(Parse_general(file_contents))
 
-code_6='''
-{
-    while not: can(walk(1 , north )) { walk(1 , north ) }
-}
-defVar w 0
-defProc putCB (c , b){
-
-    walk(c, front);
-    leap(w)
-    
-}
-
-defVar x 0
-{
-    x = 5;
-    putCB (x , w);
-    x = 3
-}
-'''
-code_11 = '''
-defProc putCB (c,b){
-    drop (1) ;
-    letGo (2) ;
-    walk (1) ;
-    while can ( walk (1 , north )) {
-     walk (1 , north );
-     while can ( walk (1 , north )) { walk (1 , north )}
-}    
-}
-'''
-
-
-
-#print(verificarParametros(tokenize(code_6.lower()),13))
-CODE_PED = '''
-{
-    while can(walk(1 , north ))  { walk(1 , north ) }
-}
-'''
-code_7 ='''
-defVar x 5
-{
-    repeat x times { walk(1 , north ) }
-}
-
-'''
-code_8 = '''
-defProc goWest ()
-{
- if can(walk(1 , west ) ) { walk(1 , west ) } else nop ()
- }
-'''
-code_10 = '''
-
-
-defProc putCB (c , b)
-{
-drop (c) ;
-letGo (b); walk (1) ;
- putCB (c ,b)
- }
-
- {
- jump (3 ,3) ;
- putCB (2 ,1)
- }
-'''
-'''
- defProc goNorth ()
- {
-
- while can ( walk (1 , north )) { walk (1 , north ) };
- putCB (1 ,1)
-
- }
-
- {
- jump (3 ,4) ;
- putCB (5 ,5) ;
- goNorth ()
- }
-
- defProc goWest ()
- {
-
- if can ( walk (1 , west ) ) { walk (1 , west )} else { nop () };
- goNorth () ;
- goWest () ;
-
- }
-
- {
- jump (4 ,5) ;
- putCB (6 ,7) ;
- goNorth () ;
- goWest () ;
- goNorth ()
- }
-'''
-
-
-#print(PreScan(tokenize(code_6)))
-    
-    
-'''
-command_list = ['jump',
-                'walk','leap','turn',
-                'turnto','drop','get',
-                'grab','letGo','nop','ASSIGN']   
-'''
-Parse_general(code_6)
-'''
-a = tokenize(code_5)
-for token in a:
-    print(token)
-'''
+mainFunction('prueba.txt')
